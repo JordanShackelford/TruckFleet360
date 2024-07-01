@@ -1,0 +1,18 @@
+# Dependency directories
+/node_modules
+/npm-debug.log
+/yarn-error.log
+
+# Optional npm cache directory
+/.npm
+
+# Lock files
+/package-lock.json   # npm lock file
+/yarn.lock           # yarn lock file
+
+# Metro bundler cache / configuration
+/metro-cache
+/metro.config.js
+
+# Environment variable files
+.env
