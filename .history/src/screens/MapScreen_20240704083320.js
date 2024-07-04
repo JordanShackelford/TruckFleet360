@@ -8,7 +8,7 @@ function MapScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.overlay}>
+      <View style={styles.container}>
         <Text style={styles.title}>Interactive Map</Text>
         <Text style={styles.subtitle}>Explore Your World</Text>
         <TouchableOpacity style={styles.button}>
@@ -22,15 +22,16 @@ function MapScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  overlay: {
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 20,
+    width: '100%',
   },
   title: {
     fontSize: 36,

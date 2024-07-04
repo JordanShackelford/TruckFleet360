@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 function HomeScreen() {
   return (
     <ImageBackground 
-      source={require('../../assets/futuristic-highway.png')} 
+      source={require('../../assets/futuristic-highway.jpg')} 
       style={styles.container}
     >
       <LinearGradient
@@ -19,7 +19,7 @@ function HomeScreen() {
           <StatBox title="Miles Today" value="342" />
           <StatBox title="Fuel Saved" value="12%" />
         </View>
-        <TouchableOpacity style={styles.startButton}>
+        <TouchableOpacity style={styles.startButton} onPress={handleStartTrip}>
           <Text style={styles.buttonText}>Start New Trip</Text>
         </TouchableOpacity>
       </LinearGradient>
@@ -36,6 +36,11 @@ function StatBox({ title, value }) {
   );
 }
 
+const handleStartTrip = () => {
+  // Logic to start a new trip, e.g., navigate to the Trip creation screen
+  console.log('Start New Trip');
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -49,17 +54,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 40,
+    fontSize: 48, // Increased font size for emphasis
     fontWeight: 'bold',
     color: '#00FFFF',
     textShadowColor: 'rgba(0, 255, 255, 0.75)',
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
+    marginBottom: 10, // Added margin for separation
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20, // Increased font size for clarity
     color: '#FFFFFF',
     marginBottom: 40,
+    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -68,18 +76,20 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   statBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Adjusted opacity for better contrast
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
+    minWidth: 100,
   },
   statTitle: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 16, // Increased font size for readability
+    marginBottom: 5, // Added margin for separation
   },
   statValue: {
     color: '#00FFFF',
-    fontSize: 24,
+    fontSize: 28, // Increased font size for emphasis
     fontWeight: 'bold',
   },
   startButton: {
@@ -87,11 +97,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 30,
+    marginTop: 20, // Added margin for separation
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

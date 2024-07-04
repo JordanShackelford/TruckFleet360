@@ -1,11 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ImageBackground, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 function HomeScreen() {
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+
+  const handleStartTrip = () => {
+    // Example animation on button press
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.8,
+        duration: 100,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        easing: Easing.ease,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      console.log('Start New Trip');
+      // Add logic to navigate to trip creation screen or fetch data
+    });
+  };
+
   return (
     <ImageBackground 
-      source={require('../../assets/futuristic-highway.png')} 
+      source={require('../../assets/futuristic-highway.jpg')} 
       style={styles.container}
     >
       <LinearGradient
@@ -19,8 +42,14 @@ function HomeScreen() {
           <StatBox title="Miles Today" value="342" />
           <StatBox title="Fuel Saved" value="12%" />
         </View>
-        <TouchableOpacity style={styles.startButton}>
-          <Text style={styles.buttonText}>Start New Trip</Text>
+        <TouchableOpacity 
+          style={styles.startButton} 
+          onPress={handleStartTrip}
+          activeOpacity={0.9}
+        >
+          <Animated.View style={[styles.buttonWrapper, { transform: [{ scale: scaleAnim }] }]}>
+            <Text style={styles.buttonText}>Start New Trip</Text>
+          </Animated.View>
         </TouchableOpacity>
       </LinearGradient>
     </ImageBackground>
@@ -49,17 +78,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#00FFFF',
     textShadowColor: 'rgba(0, 255, 255, 0.75)',
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     color: '#FFFFFF',
     marginBottom: 40,
+    textAlign: 'center',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -68,30 +100,39 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   statBox: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
+    minWidth: 100,
   },
   statTitle: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 16,
+    marginBottom: 5,
   },
   statValue: {
     color: '#00FFFF',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
   },
   startButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  buttonWrapper: {
     backgroundColor: '#FF00FF',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 30,
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   buttonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

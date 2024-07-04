@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 function HomeScreen() {
   return (
     <ImageBackground 
-      source={require('../../assets/futuristic-highway.png')} 
+      source={require('../../assets/futuristic-highway.jpg')} 
       style={styles.container}
     >
       <LinearGradient
@@ -19,7 +19,7 @@ function HomeScreen() {
           <StatBox title="Miles Today" value="342" />
           <StatBox title="Fuel Saved" value="12%" />
         </View>
-        <TouchableOpacity style={styles.startButton}>
+        <TouchableOpacity style={styles.startButton} onPress={handleStartTrip}>
           <Text style={styles.buttonText}>Start New Trip</Text>
         </TouchableOpacity>
       </LinearGradient>
@@ -35,6 +35,11 @@ function StatBox({ title, value }) {
     </View>
   );
 }
+
+const handleStartTrip = () => {
+  // Logic to start a new trip, e.g., navigate to the Trip creation screen
+  console.log('Start New Trip');
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -60,6 +65,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#FFFFFF',
     marginBottom: 40,
+    textAlign: 'center', // Improved accessibility
   },
   statsContainer: {
     flexDirection: 'row',
@@ -72,6 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 15,
     alignItems: 'center',
+    minWidth: 100, // Ensure consistent sizing
   },
   statTitle: {
     color: '#FFFFFF',

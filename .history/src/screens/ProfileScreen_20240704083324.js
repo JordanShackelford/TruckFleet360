@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 
 function ProfileScreen() {
   return (
@@ -12,7 +12,7 @@ function ProfileScreen() {
         <Text style={styles.title}>Driver Profile</Text>
         <View style={styles.profileContainer}>
           <View style={styles.profileImageContainer}>
-            <Image
+            <ImageBackground
               source={require('../../assets/profile.jpg')}
               style={styles.profileImage}
               resizeMode="cover"
@@ -32,8 +32,8 @@ function ProfileScreen() {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   container: {
     flex: 1,
@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 20,
+    width: '100%',
   },
   title: {
     fontSize: 36,
@@ -62,20 +63,17 @@ const styles = StyleSheet.create({
   profileImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 60, // Ensure the image is fully rounded
   },
   profileName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 10,
-    textAlign: 'center',
   },
   profileInfo: {
     fontSize: 18,
     color: '#fff',
     marginBottom: 20,
-    textAlign: 'center',
   },
   button: {
     backgroundColor: '#4CAF50',
