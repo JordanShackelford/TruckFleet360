@@ -21,11 +21,13 @@ const LoginScreen = ({ navigation }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log('Response status:', response.status);
-      const data = await response.json();
-      console.log('Response data:', data);
+      if (!response.ok) {
+        throw new Error('Server responded with error status');
+      }
 
-      if (response.status === 200 && data.success) {
+      const data = await response.json();
+
+      if (data.success) {
         console.log('Login successful:', data.token);
         navigation.replace('Main');
       } else {
@@ -34,7 +36,7 @@ const LoginScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Error', 'An unexpected error occurred');
+      Alert.alert('Error', 'Failed to connect to the server. Please check your network connection.');
     } finally {
       setIsLoading(false);
     }
