@@ -1,16 +1,39 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons'; // Assuming you're using Expo
+import { FontAwesome } from '@expo/vector-icons';
+
+const mockAuth = (email, password) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (email === 'user@example.com' && password === 'password') {
+        resolve({ success: true, user: { id: 1, name: 'Test User' } });
+      } else {
+        reject({ success: false, message: 'Invalid credentials' });
+      }
+    }, 1000);
+  });
+};
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = () => {
-    console.log('Login attempt with:', email, password);
-    // Add your login logic here
-    // If login is successful:
-    navigation.replace('Main'); // Navigate to the Main tab navigator
+  const handleSubmit = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      const result = await mockAuth(email, password);
+      if (result.success) {
+        console.log('Login successful:', result.user);
+        navigation.replace('Main');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -36,8 +59,15 @@ const LoginScreen = ({ navigation }) => {
             secureTextEntry
           />
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Login</Text>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <TouchableOpacity 
+          style={[styles.button, isLoading && styles.buttonDisabled]} 
+          onPress={handleSubmit}
+          disabled={isLoading}
+        >
+          <Text style={styles.buttonText}>
+            {isLoading ? 'Logging in...' : 'Login'}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.biometricLogin}>
           <FontAwesome name="fingerprint" size={24} color="#4ecca3" />
@@ -99,6 +129,13 @@ const styles = StyleSheet.create({
   biometricText: {
     color: '#4ecca3',
     marginLeft: 10,
+  },
+  errorText: {
+    color: '#ff0033',
+    marginBottom: 10,
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
   },
 });
 
