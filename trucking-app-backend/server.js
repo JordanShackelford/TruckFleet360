@@ -1,26 +1,40 @@
-require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const port = 3000;
 
-// Mock user database (replace with actual database in production)
+app.use(express.json());
+app.use(cors());
+
 const users = [
-  { id: 1, email: 'user@example.com', password: '$2b$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' } // This is a hashed version of 'password'
+  // Replace this with the hashed password you got from the /hash-password/password route
+  { id: 1, email: 'user@example.com', password: '$2b$10$Wzajw6p7unRjXylEGIgF7.qq5yjeKM1vZVsdWX4BUPWf9UYadIV7.' }
 ];
 
-// Login route
+app.get('/hash-password/:password', async (req, res) => {
+  const hashedPassword = await bcrypt.hash(req.params.password, 10);
+  res.send(hashedPassword);
+});
+
 app.post('/api/login', async (req, res) => {
+  console.log('Received login request');
+  console.log('Request body:', req.body);
   try {
     const { email, password } = req.body;
+    console.log('Received login attempt for:', email);
     const user = users.find(u => u.email === email);
-    if (user && await bcrypt.compare(password, user.password)) {
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.json({ success: true, message: 'Login successful', token });
+    if (user) {
+      const isPasswordMatch = await bcrypt.compare(password, user.password);
+      console.log('Password match:', isPasswordMatch);
+      if (isPasswordMatch) {
+        const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
+        res.json({ success: true, message: 'Login successful', token });
+      } else {
+        res.status(400).json({ success: false, message: 'Invalid credentials' });
+      }
     } else {
       res.status(400).json({ success: false, message: 'Invalid credentials' });
     }
@@ -30,10 +44,6 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Backend is working!' });
+app.listen(port, () => {
+  console.log(`Server running at http://172.20.10.3:${port}`);
 });
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
