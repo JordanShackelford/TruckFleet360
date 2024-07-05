@@ -34,7 +34,7 @@ const verifyPassword = async (password, hash) => {
 
 // Mock user database (replace with actual database in production)
 const users = [
-  { id: 1, email: 'user@example.com', password: '$2b$10$4QLovvDy2aswcvXIDNU0s.eIsV.z4uDIprjqzRqALK4I4dPLc9D8y' } // This is a hashed version of 'password'
+  { id: 1, email: 'user@example.com', password: '$2b$10$XVLVmIE198ch41IKzS8AVuOzKRkc9zkl.lnIKwufvVGDUe7Yt8h/C' } // This is a hashed version of 'password'
 ];
 
 // Login route

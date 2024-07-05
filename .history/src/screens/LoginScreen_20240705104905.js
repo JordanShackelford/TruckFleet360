@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
-const API_URL = 'http://192.168.1.2:3000';
+//const API_URL = 'http://172.20.10.3:3000'; // Your backend IP and port
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');

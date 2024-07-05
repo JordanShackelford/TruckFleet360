@@ -10,31 +10,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Password hashing functions
-const saltRounds = 10;
-
-const hashPassword = async (password) => {
-  try {
-    const salt = await bcrypt.genSalt(saltRounds);
-    return await bcrypt.hash(password, salt);
-  } catch (error) {
-    console.error('Error hashing password:', error);
-    throw error;
-  }
-};
-
-const verifyPassword = async (password, hash) => {
-  try {
-    return await bcrypt.compare(password, hash);
-  } catch (error) {
-    console.error('Error verifying password:', error);
-    throw error;
-  }
-};
-
 // Mock user database (replace with actual database in production)
 const users = [
-  { id: 1, email: 'user@example.com', password: '$2b$10$4QLovvDy2aswcvXIDNU0s.eIsV.z4uDIprjqzRqALK4I4dPLc9D8y' } // This is a hashed version of 'password'
+  { id: 1, email: 'user@example.com', password: '$2b$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' } // This is a hashed version of 'password'
 ];
 
 // Login route
@@ -47,7 +25,7 @@ app.post('/api/login', async (req, res) => {
     const user = users.find(u => u.email === email);
     if (user) {
       console.log('User found, comparing passwords');
-      const passwordMatch = await verifyPassword(password, user.password);
+      const passwordMatch = await bcrypt.compare(password, user.password);
       console.log('Password match:', passwordMatch);
       if (passwordMatch) {
         const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -64,16 +42,6 @@ app.post('/api/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ success: false, message: 'Error logging in' });
-  }
-});
-
-// Route to hash a password (for development purposes only)
-app.get('/api/hash-password/:password', async (req, res) => {
-  try {
-    const hashedPassword = await hashPassword(req.params.password);
-    res.json({ hashedPassword });
-  } catch (error) {
-    res.status(500).json({ error: 'Error hashing password' });
   }
 });
 
