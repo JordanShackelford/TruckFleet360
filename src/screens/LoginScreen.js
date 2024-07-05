@@ -20,23 +20,32 @@ const LoginScreen = ({ navigation }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-
-      if (!response.ok) {
-        throw new Error('Server responded with error status');
+      console.log('Response received. Status:', response.status);
+      
+      const textResponse = await response.text();
+      console.log('Raw response:', textResponse);
+      
+      let data;
+      try {
+        data = JSON.parse(textResponse);
+      } catch (e) {
+        console.error('Error parsing JSON:', e);
+        Alert.alert('Error', 'Invalid response from server');
+        return;
       }
-
-      const data = await response.json();
-
+      
+      console.log('Parsed response data:', data);
+      
       if (data.success) {
         console.log('Login successful:', data.token);
         navigation.replace('Main');
       } else {
         console.log('Login failed:', data.message);
-        Alert.alert('Login Failed', data.message);
+        Alert.alert('Login Failed', data.message || 'Unknown error');
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Error', 'Failed to connect to the server. Please check your network connection.');
+      Alert.alert('Error', 'An unexpected error occurred. Check console for details.');
     } finally {
       setIsLoading(false);
     }
