@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { 
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, 
+  KeyboardAvoidingView, Platform, ActivityIndicator 
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://192.168.1.2:3000';
 
@@ -9,10 +13,13 @@ const LoginScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter both email and password');
+      return;
+    }
+
     setIsLoading(true);
-    console.log('Attempting login with:', email, password);
     try {
-      console.log('Sending request to:', `${API_URL}/api/login`);
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: {
@@ -20,72 +27,84 @@ const LoginScreen = ({ navigation }) => {
         },
         body: JSON.stringify({ email, password }),
       });
-      console.log('Response received. Status:', response.status);
       
-      const textResponse = await response.text();
-      console.log('Raw response:', textResponse);
-      
-      let data;
-      try {
-        data = JSON.parse(textResponse);
-      } catch (e) {
-        console.error('Error parsing JSON:', e);
-        Alert.alert('Error', 'Invalid response from server');
-        return;
-      }
-      
-      console.log('Parsed response data:', data);
+      const data = await response.json();
       
       if (data.success) {
-        console.log('Login successful:', data.token);
+        await AsyncStorage.setItem('userToken', data.token);
         navigation.replace('Main');
       } else {
-        console.log('Login failed:', data.message);
-        Alert.alert('Login Failed', data.message || 'Unknown error');
+        Alert.alert('Login Failed', data.message || 'Please check your credentials and try again.');
       }
     } catch (error) {
       console.error('Login error:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Check console for details.');
+      Alert.alert('Error', 'An unexpected error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity 
-        style={styles.button} 
-        onPress={handleLogin}
-        disabled={isLoading}
-      >
-        <Text style={styles.buttonText}>
-          {isLoading ? 'Logging in...' : 'Login'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <View style={styles.innerContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          placeholderTextColor="#6e6e6e"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="#6e6e6e"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Login</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.forgotPassword}
+          onPress={() => navigation.navigate('ForgotPassword')}
+        >
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={styles.register}
+          onPress={() => navigation.navigate('Register')}
+        >
+          <Text style={styles.registerText}>Don't have an account? Register</Text>
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1a1a2e',
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a2e',
+    padding: 20,
   },
   input: {
     borderBottomWidth: 2,
@@ -93,14 +112,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     paddingVertical: 10,
     fontSize: 16,
-    width: '80%',
+    width: '100%',
     marginBottom: 20,
   },
   button: {
     backgroundColor: '#03e9f4',
-    padding: 10,
+    padding: 15,
     borderRadius: 5,
-    width: '80%',
+    width: '100%',
     alignItems: 'center',
     marginTop: 20,
   },
@@ -108,6 +127,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     textTransform: 'uppercase',
+  },
+  forgotPassword: {
+    marginTop: 15,
+  },
+  forgotPasswordText: {
+    color: '#4ecca3',
+    fontSize: 14,
+  },
+  register: {
+    marginTop: 20,
+  },
+  registerText: {
+    color: '#fff',
+    fontSize: 14,
   },
 });
 
