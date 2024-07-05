@@ -17,3 +17,4 @@
 # Environment variable files
 .env
 trucking-app-backend/node_modules/
+.history
