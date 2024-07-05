@@ -48,6 +48,9 @@ app.post('/api/login', async (req, res) => {
     }
   });
 
+const cors = require('cors');
+app.use(cors());
+
 app.listen(port, () => {
   console.log(`Server running at http://172.20.10.3:${port}`);
 });
