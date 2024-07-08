@@ -5,7 +5,7 @@ console.log('MONGODB_URI:', process.env.MONGODB_URI);
 
 const connectDB = async () => {
   try {
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/truckfleet360';
+    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/truckingdb';
     await mongoose.connect(uri);
     console.log('MongoDB connected successfully');
   } catch (error) {

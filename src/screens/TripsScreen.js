@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
-const API_URL = 'http://192.168.1.5:3000'; // Replace with your IP address
+const API_URL = 'http://localhost:3000'; // Verify this IP and port
 
 function TripsScreen() {
   const [trips, setTrips] = useState([]);
@@ -17,15 +18,11 @@ function TripsScreen() {
   const fetchTrips = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
-      if (!token) {
-        setError('No authentication token found. Please log in.');
-        setLoading(false);
-        return;
-      }
-
+      console.log('Fetching trips...');
       const response = await axios.get(`${API_URL}/api/trips`, {
-        headers: { Authorization: token }
+        headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Trips received:', response.data);
       setTrips(response.data);
       setLoading(false);
     } catch (err) {
@@ -35,16 +32,26 @@ function TripsScreen() {
     }
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.tripItem}>
-      <Text style={styles.tripTitle}>{`Trip to ${item.endLocation.address}`}</Text>
-      <View style={styles.tripDetails}>
-        <Text style={styles.tripDate}>{new Date(item.startDate).toLocaleDateString()}</Text>
-        <Text style={styles.tripDistance}>{item.distance.value} {item.distance.unit}</Text>
-      </View>
-      <Text style={styles.tripStatus}>Status: {item.status}</Text>
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const endLocation = item.endLocation || {};
+    const address = endLocation.address || 'Unknown location';
+    return (
+      <TouchableOpacity style={styles.tripItem}>
+        <Text style={styles.tripTitle}>{`Trip to ${address}`}</Text>
+        <View style={styles.tripDetails}>
+          <View style={styles.detailItem}>
+            <Ionicons name="calendar" size={16} color="#666" />
+            <Text style={styles.tripDate}>{new Date(item.startDate).toLocaleDateString()}</Text>
+          </View>
+          <View style={styles.detailItem}>
+            <Ionicons name="car" size={16} color="#666" />
+            <Text style={styles.tripDistance}>{item.distance.value} {item.distance.unit}</Text>
+          </View>
+        </View>
+        <Text style={styles.tripStatus}>Status: {item.status}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
@@ -65,13 +72,19 @@ function TripsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trip Details</Text>
-      <FlatList
-        data={trips}
-        renderItem={renderItem}
-        keyExtractor={(item) => item._id.toString()}
-        style={styles.list}
-        contentContainerStyle={styles.listContent}
-      />
+      {trips.length === 0 ? (
+        <View style={styles.centered}>
+          <Text>No trips found.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={trips}
+          renderItem={renderItem}
+          keyExtractor={(item) => item._id.toString()}
+          style={styles.list}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
     </View>
   );
 }
@@ -80,12 +93,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f4f7',
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#333',
   },
   list: {
     flex: 1,
@@ -94,7 +108,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   tripItem: {
-    backgroundColor: 'white',
+    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
@@ -108,19 +122,26 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#333',
   },
   tripDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 5,
   },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   tripDate: {
     fontSize: 14,
     color: '#666',
+    marginLeft: 5,
   },
   tripDistance: {
     fontSize: 14,
     color: '#666',
+    marginLeft: 5,
   },
   tripStatus: {
     fontSize: 14,
