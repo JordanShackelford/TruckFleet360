@@ -1,32 +1,74 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const tripData = [
-  { id: '1', title: 'Trip 1', date: '2030-07-01', distance: '120 km' },
-  { id: '2', title: 'Trip 2', date: '2030-06-30', distance: '85 km' },
-  { id: '3', title: 'Trip 3', date: '2030-06-29', distance: '150 km' },
-  { id: '4', title: 'Trip 4', date: '2030-06-28', distance: '100 km' },
-  { id: '5', title: 'Trip 5', date: '2030-06-27', distance: '130 km' },
-];
+const API_URL = 'http://192.168.1.5:3000'; // Replace with your IP address
 
 function TripsScreen() {
+  const [trips, setTrips] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchTrips();
+  }, []);
+
+  const fetchTrips = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      if (!token) {
+        setError('No authentication token found. Please log in.');
+        setLoading(false);
+        return;
+      }
+
+      const response = await axios.get(`${API_URL}/api/trips`, {
+        headers: { Authorization: token }
+      });
+      setTrips(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching trips:', err);
+      setError('Failed to fetch trips. Please try again.');
+      setLoading(false);
+    }
+  };
+
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.tripItem}>
-      <Text style={styles.tripTitle}>{item.title}</Text>
+      <Text style={styles.tripTitle}>{`Trip to ${item.endLocation.address}`}</Text>
       <View style={styles.tripDetails}>
-        <Text style={styles.tripDate}>{item.date}</Text>
-        <Text style={styles.tripDistance}>{item.distance}</Text>
+        <Text style={styles.tripDate}>{new Date(item.startDate).toLocaleDateString()}</Text>
+        <Text style={styles.tripDistance}>{item.distance.value} {item.distance.unit}</Text>
       </View>
+      <Text style={styles.tripStatus}>Status: {item.status}</Text>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trip Details</Text>
       <FlatList
-        data={tripData}
+        data={trips}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id.toString()}
         style={styles.list}
         contentContainerStyle={styles.listContent}
       />
@@ -37,50 +79,62 @@ function TripsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    padding: 20,
+    backgroundColor: '#f5f5f5',
   },
   title: {
-    fontSize: 36,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#343a40',
   },
   list: {
-    width: '100%',
+    flex: 1,
   },
   listContent: {
     paddingBottom: 20,
   },
   tripItem: {
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
+    padding: 15,
     borderRadius: 10,
-    padding: 20,
-    marginBottom: 15,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
     elevation: 3,
   },
   tripTitle: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#343a40',
+    marginBottom: 5,
   },
   tripDetails: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    marginBottom: 5,
   },
   tripDate: {
-    fontSize: 16,
-    color: '#6c757d',
+    fontSize: 14,
+    color: '#666',
   },
   tripDistance: {
-    fontSize: 16,
-    color: '#6c757d',
+    fontSize: 14,
+    color: '#666',
+  },
+  tripStatus: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 18,
   },
 });
 

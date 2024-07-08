@@ -5,7 +5,17 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://localhost:3000';
+import { Platform } from 'react-native';
+
+const getApiUrl = () => {
+  if (Platform.OS === 'web') {
+    return 'http://localhost:3000';
+  } else {
+    return 'http://192.168.1.5:3000';
+  }
+};
+
+const API_URL = getApiUrl();
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -23,6 +33,9 @@ const LoginScreen = ({ navigation }) => {
   
     setIsLoading(true);
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+  
       console.log('Sending request to:', `${API_URL}/api/login`);
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
@@ -30,16 +43,23 @@ const LoginScreen = ({ navigation }) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        signal: controller.signal
       });
-      
+  
+      clearTimeout(timeoutId);
+  
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
-      
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
       const text = await response.text();
       console.log('Response text:', text);
-      
+  
       const data = JSON.parse(text);
-      
+  
       if (data.success) {
         await AsyncStorage.setItem('userToken', data.token);
         Alert.alert('Login Successful', data.message);
