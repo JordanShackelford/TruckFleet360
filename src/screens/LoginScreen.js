@@ -5,8 +5,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Platform } from 'react-native';
-
 const getApiUrl = () => {
   if (Platform.OS === 'web') {
     return 'http://localhost:3000';
